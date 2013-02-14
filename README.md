@@ -13,60 +13,62 @@ https://github.com/blambeau/rack-robustness
 
 In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a but Rack-ish, that allows scenarios as the following one:
 
-    class App < Sinatra::Base
+```ruby
+class App < Sinatra::Base
 
-      ##
-      # Catch everything but hide root causes, for security reasons, for instance.
-      #
-      # This handler should never be fired unless the application has a bug...
-      #
-      use Rack::Robustness do |g|
-        g.status 500
-        g.content_type 'text/plain'
-        g.body 'A fatal error occured.'
-      end
+  ##
+  # Catch everything but hide root causes, for security reasons, for instance.
+  #
+  # This handler should never be fired unless the application has a bug...
+  #
+  use Rack::Robustness do |g|
+    g.status 500
+    g.content_type 'text/plain'
+    g.body 'A fatal error occured.'
+  end
 
-      ##
-      # Some middleware here for logging, content lenght of whatever.
-      #
-      # Those middleware might fail, even if unlikely.
-      #
-      use ...
-      use ...
-    
-      ##
-      # Catch some exceptions that denote client errors by convention in our app.
-      #
-      # Those exceptions are considered safe, so the message is sent to the user.
-      #
-      use Rack::Robustness do |g|
-        g.no_catch_all                 # do not catch all errors
+  ##
+  # Some middleware here for logging, content lenght of whatever.
+  #
+  # Those middleware might fail, even if unlikely.
+  #
+  use ...
+  use ...
 
-        g.status 400                   # default status to 400, client error
-        g.content_type 'text/plain'    # a default content-type, maybe
-        g.body{|ex| ex.message }       # by default, send the message
+  ##
+  # Catch some exceptions that denote client errors by convention in our app.
+  #
+  # Those exceptions are considered safe, so the message is sent to the user.
+  #
+  use Rack::Robustness do |g|
+    g.no_catch_all                 # do not catch all errors
 
-        # catch ArgumentError, it denotes a coercion error in our app
-        g.on(ArgumentError)
+    g.status 400                   # default status to 400, client error
+    g.content_type 'text/plain'    # a default content-type, maybe
+    g.body{|ex| ex.message }       # by default, send the message
 
-        # we use SecurityError for handling forbidden accesses.
-        # The default status is 403 here
-        g.on(SecurityError){|ex| 403 }
-      end
+    # catch ArgumentError, it denotes a coercion error in our app
+    g.on(ArgumentError)
 
-      get '/some/route/:id' do |id|
-        id = Integer(id) # will raise a ArgumentError if not an integer
+    # we use SecurityError for handling forbidden accesses.
+    # The default status is 403 here
+    g.on(SecurityError){|ex| 403 }
+  end
 
-        ...
-      end
+  get '/some/route/:id' do |id|
+    id = Integer(id) # will raise a ArgumentError if not an integer
 
-      get '/private' do |id|
-        raise SecurityError unless logged?
+    ...
+  end
 
-        ...
-      end
+  get '/private' do |id|
+    raise SecurityError unless logged?
 
-    end
+    ...
+  end
+
+end
+```
 
 ## Without configuration
 

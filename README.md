@@ -46,12 +46,24 @@ In my opinion, Sinatra's error handling is sometimes a bit limited for real-case
         g.content_type 'text/plain'    # a default content-type, maybe
         g.body{|ex| ex.message }       # by default, send the message
 
-        # catch TypeError, it denotes a coercion error in our app
-        g.on(TypeError)
+        # catch ArgumentError, it denotes a coercion error in our app
+        g.on(ArgumentError)
 
         # we use SecurityError for handling forbidden accesses.
         # The default status is 403 here
         g.on(SecurityError){|ex| 403 }
+      end
+
+      get '/some/route/:id' do |id|
+        id = Integer(id) # will raise a ArgumentError if not an integer
+
+        ...
+      end
+
+      get '/private' do |id|
+        raise SecurityError unless logged?
+
+        ...
       end
 
     end

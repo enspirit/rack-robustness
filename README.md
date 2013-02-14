@@ -2,6 +2,13 @@
 
 Rack::Robustness is a middleware that ensures the robustness of your web stack. From zero configuration to shared configuration to specific behavior for specific errors...
 
+[![Build Status](https://secure.travis-ci.org/blambeau/rack-robustness.png)](http://travis-ci.org/blambeau/rack-robustness)
+[![Dependency Status](https://gemnasium.com/blambeau/rack-robustness.png)](https://gemnasium.com/blambeau/rack-robustness)
+
+## Links
+
+https://github.com/blambeau/rack-robustness
+
 ## Why? Example.
 
 In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a but Rack-ish, that allows scenarios as the following one:
@@ -137,7 +144,3 @@ In my opinion, Sinatra's error handling is sometimes a bit limited for real-case
       g.on(TypeError){|ex| 400 }
       ...
     end
-
-## Links
-
-https://github.com/blambeau/rack-robustness

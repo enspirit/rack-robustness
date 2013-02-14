@@ -1,0 +1,11 @@
+language: ruby
+bundler_args: --without=release doc
+rvm:
+  - 1.9.2
+  - 1.9.3
+  - 2.0.0
+  - ruby-head
+  - jruby-19mode
+  - jruby-head
+  - rbx-19mode
+  - rbx-head

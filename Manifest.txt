@@ -1,0 +1,15 @@
+rack-robustness.gemspec
+rack-robustness.noespec
+.gemtest
+CHANGELOG.md
+Gemfile
+Gemfile.lock
+bin/**/*
+lib/**/*
+LICENCE.md
+Manifest.txt
+Rakefile
+README.md
+spec/**/*
+tasks/**/*
+test/**/*

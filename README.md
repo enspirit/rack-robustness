@@ -11,7 +11,7 @@ https://github.com/blambeau/rack-robustness
 
 ## Why? Example.
 
-In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a but Rack-ish, that allows scenarios as the following one:
+In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a bit Rack-ish, that allows scenarios as the following one:
 
 ```ruby
 class App < Sinatra::Base
@@ -28,7 +28,7 @@ class App < Sinatra::Base
   end
 
   ##
-  # Some middleware here for logging, content lenght of whatever.
+  # Some middleware here for logging, content length of whatever.
   #
   # Those middleware might fail, even if unlikely.
   #
@@ -56,7 +56,7 @@ class App < Sinatra::Base
   end
 
   get '/some/route/:id' do |id|
-    id = Integer(id) # will raise a ArgumentError if not an integer
+    id = Integer(id) # will raise an ArgumentError if +id+ not an integer
 
     ...
   end

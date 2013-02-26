@@ -21,13 +21,13 @@ Gem::Specification.new do |s|
   # A short summary of this gem
   #
   # This is displayed in `gem list -d`.
-  s.summary = "Rack middleware to ensure robustness of your web stack."
+  s.summary = "Rack::Robustness, the rescue clause of your Rack stack."
 
   # A long description of this gem (required)
   #
   # The description should be more detailed than the summary.  For example,
   # you might wish to copy the entire README into the description.
-  s.description = "Rack::Robustness provides you with an easy way to handle errors in your stack."
+  s.description = "Rack::Robustness provides you with an easy way to handle errors in your stack, for making web applications more robust."
 
   # The URL of this gem home page (optional)
   s.homepage = "https://github.com/blambeau/rack-robustness"

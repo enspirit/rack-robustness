@@ -1,4 +1,4 @@
-# Rack::Robustness
+# Rack::Robustness, the rescue clause of your Rack stack.
 
 Rack::Robustness is the rescue clause of your Rack's call stack. In other words, a middleware that ensures the robustness of your web stack, because exceptions occur either intentionally or unintentionally. It scales from zero configuration (a default shield) to specific rescue clauses for specific errors.
 
@@ -11,9 +11,13 @@ https://github.com/blambeau/rack-robustness
 
 ## Why? 
 
-In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a bit more Rack-ish, that allows handling exceptions actively, because exceptions occur and that you'll handle them... enventually. 
+In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a bit more Rack-ish, that allows handling exceptions actively, because exceptions occur and that you'll handle them... enventually. A more theoretic argumentation would be:
 
-So Rack::Robustness is a try/catch mechanism as a middleware, to be used along the Rack call stack as you would use a standard one in a more common call stack:
+* Exceptions occur, because you can't always test/control boundary conditions. E.g. your code can pro-actively test that a file exists before reading it, but it cannot pro-actively test that the user removes the network cable in the middle of a download.
+* The behavior to adopt when obstacles occur is not necessary defined where the exception is thrown, but often higher in the call stack.
+* In ruby web apps, the Rack's call stack is a very important part of your stack. Middlewares, routes and controllers do rarely rescue all errors, so it's still your job to rescue errors higher in the call stack.
+
+Rack::Robustness is therefore a try/catch mechanism as a middleware, to be used along the Rack call stack as you would use a standard one in a more conventional call stack:
 
 ```java
 try {

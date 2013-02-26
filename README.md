@@ -15,7 +15,7 @@ In my opinion, Sinatra's error handling is sometimes a bit limited for real-case
 
 So Rack::Robustness is a try/catch mechanism as a middleware, to be used along the Rack call stack as you would use a standard one in a more common call stack:
 
-```
+```java
 try {
   // main shield, typically in a main
   

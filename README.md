@@ -1,6 +1,6 @@
 # Rack::Robustness
 
-Rack::Robustness is a middleware that ensures the robustness of your web stack. From zero configuration to shared configuration to specific behavior for specific errors...
+Rack::Robustness is the rescue clause of your Rack's call stack. In other words, a middleware that ensures the robustness of your web stack, because exceptions occur either intentionally or unintentionally. It scales from zero configuration (a default shield) to specific rescue clauses for specific errors.
 
 [![Build Status](https://secure.travis-ci.org/blambeau/rack-robustness.png)](http://travis-ci.org/blambeau/rack-robustness)
 [![Dependency Status](https://gemnasium.com/blambeau/rack-robustness.png)](https://gemnasium.com/blambeau/rack-robustness)
@@ -9,9 +9,54 @@ Rack::Robustness is a middleware that ensures the robustness of your web stack. 
 
 https://github.com/blambeau/rack-robustness
 
-## Why? Example.
+## Why? 
 
-In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a bit Rack-ish, that allows scenarios as the following one:
+In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a bit more Rack-ish, that allows handling exceptions actively, because exceptions occur and that you'll handle them... enventually. 
+
+So Rack::Robustness is a try/catch mechanism as a middleware, to be used along the Rack call stack as you would use a standard one in a more common call stack:
+
+```
+try {
+  // main shield, typically in a main
+  
+  try {
+    // try to achieve a goal here
+  } catch (...) {
+    // fallback to an alternative
+  }
+  
+  // continue your flow
+  
+} catch (...) {
+  // something goes really wrong, inform the user as you can
+}
+```
+
+becomes:
+
+```ruby
+class Main < Sinatra::Base
+
+  # main shield, main = rack top level
+  use Rack::Robustness do
+    # something goes really wrong, inform the user as you can
+    # probably a 5xx http status here
+  end
+
+  # continue your flow
+  use Other::Useful::Middlewares
+
+  use Rack::Robustness do
+    # fallback to an alternative
+    # 3xx, 4xx errors maybe
+  end
+
+  # try to achieve your goal through standard routes
+
+end
+```
+
+## Examples
 
 ```ruby
 class App < Sinatra::Base

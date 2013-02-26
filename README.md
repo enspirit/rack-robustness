@@ -7,7 +7,8 @@ Rack::Robustness is the rescue clause of your Rack's call stack. In other words,
 
 ## Links
 
-https://github.com/blambeau/rack-robustness
+* https://github.com/blambeau/rack-robustness
+* http://www.revision-zero.org/rack-robustness
 
 ## Why? 
 

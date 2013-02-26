@@ -16,6 +16,7 @@ module Rack
       on(Object){|ex| [@status, {}, @body]} if @catch_all
       @headers.freeze
       @body.freeze
+      @handlers.freeze
     end
 
     ##

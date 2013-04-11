@@ -32,8 +32,8 @@ module Rack
     end
     alias :on :rescue
 
-    def ensure(&bl)
-      @ensures << bl
+    def ensure(bypass_on_success = false, &bl)
+      @ensures << [bypass_on_success, bl]
     end
 
     def status(s=nil, &bl)
@@ -66,7 +66,9 @@ module Rack
       raise unless handler
       handle_response(handler, ex)
     ensure
-      @ensures.each{|ensurer| instance_exec(ex, &ensurer) }
+      @ensures.each{|(bypass,ensurer)|
+        instance_exec(ex, &ensurer) if ex or not(bypass)
+      }
     end
 
   private

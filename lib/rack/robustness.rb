@@ -8,6 +8,7 @@ module Rack
     def initialize(app)
       @app       = app
       @handlers  = {}
+      @ensures   = []
       @status    = 500
       @headers   = {'Content-Type' => "text/plain"}
       @body      = ["Sorry, a fatal error occured."]
@@ -28,6 +29,10 @@ module Rack
 
     def on(ex_class, &bl)
       @handlers[ex_class] = bl || NIL_HANDLER
+    end
+
+    def ensure(&bl)
+      @ensures << bl
     end
 
     def status(s=nil, &bl)
@@ -59,6 +64,8 @@ module Rack
       handler = error_handler(ex.class)
       raise unless handler
       handle_response(handler, ex)
+    ensure
+      @ensures.each{|ensurer| instance_exec(ex, &ensurer) }
     end
 
   private

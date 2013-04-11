@@ -27,9 +27,10 @@ module Rack
       @catch_all = false
     end
 
-    def on(ex_class, &bl)
+    def rescue(ex_class, &bl)
       @handlers[ex_class] = bl || NIL_HANDLER
     end
+    alias :on :rescue
 
     def ensure(&bl)
       @ensures << bl

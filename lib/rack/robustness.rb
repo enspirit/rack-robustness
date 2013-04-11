@@ -60,6 +60,13 @@ module Rack
     # Rack's call
 
     def call(env)
+      dup.call!(env)
+    end
+
+  protected
+
+    def call!(env)
+      @env = env
       @app.call(env)
     rescue => ex
       handler = error_handler(ex.class)
@@ -73,13 +80,15 @@ module Rack
 
   private
 
+    attr_reader :env
+
     def handle_response(response, ex)
       case response
       when NilClass then handle_response([@status,  {},       @body], ex)
       when Fixnum   then handle_response([response, {},       @body], ex)
       when String   then handle_response([@status,  {},       response], ex)
       when Hash     then handle_response([@status,  response, @body], ex)
-      when Proc     then handle_response(response.call(ex), ex)
+      when Proc     then handle_response(instance_exec(ex, &response), ex)
       else
         status, headers, body = response.map{|x| handle_value(x, ex) }
         [ status,
@@ -90,8 +99,8 @@ module Rack
 
     def handle_value(value, ex)
       case value
-      when Proc then value.call(ex)
-      when Hash then value.each_with_object({}){|(k,v),h| h[k] = handle_value(v, ex)}
+      when Proc then instance_exec(ex, &value)
+      when Hash then value.each_with_object({}){|(k,v),h| h[k] = handle_value(v, ex) }
       else
         value
       end

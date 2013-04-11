@@ -1,16 +1,59 @@
 # Rack::Robustness, the rescue clause of your Rack stack.
 
-Rack::Robustness is the rescue clause of your Rack's call stack. In other words, a middleware that ensures the robustness of your web stack, because exceptions occur either intentionally or unintentionally. It scales from zero configuration (a default shield) to specific rescue clauses for specific errors.
+Rack::Robustness is the rescue clause of your Rack's call stack. In other words, a middleware that ensures the robustness of your web stack, because exceptions occur either intentionally or unintentionally. Rack::Robustness is the rack middleware you would have written manually (see below) but provides a DSL for scaling from zero configuration (a default shield) to specific rescue clauses for specific errors.
 
 [![Build Status](https://secure.travis-ci.org/blambeau/rack-robustness.png)](http://travis-ci.org/blambeau/rack-robustness)
 [![Dependency Status](https://gemnasium.com/blambeau/rack-robustness.png)](https://gemnasium.com/blambeau/rack-robustness)
+
+```ruby
+##
+#
+# The middleware you would have written
+#
+class Robustness
+
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    @app.call(env)
+  rescue ArgumentError => ex
+    [400, { 'Content-Type' => 'text/plain' }, [ ex.message ] ]  # suppose the message can be safely used
+  rescue SecurityError => ex
+    [403, { 'Content-Type' => 'text/plain' }, [ ex.message ] ]
+  ensure
+    env['rack.errors'].write(ex.message) if ex
+  end
+
+end
+```
+
+...becomes...
+
+```ruby
+use Rack::Robustness do |g|
+  g.on(ArgumentError){|ex| 400 }
+  g.on(SecurityError){|ex| 403 }
+
+  g.content_type 'text/plain'
+
+  g.body{|ex|
+    ex.message
+  }
+
+  g.ensure(true){|ex|
+    env['rack.errors'].write(ex.message)
+  }
+end
+```
 
 ## Links
 
 * https://github.com/blambeau/rack-robustness
 * http://www.revision-zero.org/rack-robustness
 
-## Why? 
+## Why?
 
 In my opinion, Sinatra's error handling is sometimes a bit limited for real-case needs. So I came up with something a bit more Rack-ish, that allows handling exceptions actively, because exceptions occur and that you'll handle them... enventually. A more theoretic argumentation would be:
 
@@ -18,20 +61,22 @@ In my opinion, Sinatra's error handling is sometimes a bit limited for real-case
 * The behavior to adopt when obstacles occur is not necessary defined where the exception is thrown, but often higher in the call stack.
 * In ruby web apps, the Rack's call stack is a very important part of your stack. Middlewares, routes and controllers do rarely rescue all errors, so it's still your job to rescue errors higher in the call stack.
 
-Rack::Robustness is therefore a try/catch mechanism as a middleware, to be used along the Rack call stack as you would use a standard one in a more conventional call stack:
+Rack::Robustness is therefore a try/catch/finally mechanism as a middleware, to be used along the Rack call stack as you would use a standard one in a more conventional call stack:
 
 ```java
 try {
   // main shield, typically in a main
-  
+
   try {
     // try to achieve a goal here
   } catch (...) {
     // fallback to an alternative
+  } finally {
+    // ensure something is executed in all cases
   }
-  
+
   // continue your flow
-  
+
 } catch (...) {
   // something goes really wrong, inform the user as you can
 }
@@ -54,6 +99,8 @@ class Main < Sinatra::Base
   use Rack::Robustness do
     # fallback to an alternative
     # 3xx, 4xx errors maybe
+
+    # ensure something is executed in all cases
   end
 
   # try to achieve your goal through standard routes
@@ -61,7 +108,7 @@ class Main < Sinatra::Base
 end
 ```
 
-## Examples
+## Additional examples
 
 ```ruby
 class App < Sinatra::Base
@@ -103,6 +150,9 @@ class App < Sinatra::Base
     # we use SecurityError for handling forbidden accesses.
     # The default status is 403 here
     g.on(SecurityError){|ex| 403 }
+
+    # ensure logging in all exceptional cases
+    g.ensure(true){|ex| env['rack.errors'].write(ex.message) }
   end
 
   get '/some/route/:id' do |id|
@@ -199,6 +249,27 @@ use Rack::Robustness do |g|
   # "text/plain" unless specified below
   g.on(SecurityError){|ex|
     [ 403, { ... }, [ "Forbidden, sorry" ] ]
+  }
+end
+```
+
+## Ensure common block in happy/exceptional/all cases
+
+```ruby
+##
+# Ensure in all cases (no arg) or exceptional cases only (true)
+#
+use Rack::Robustness do |g|
+
+  # Ensure in all cases
+  g.ensure{|ex|
+    # ex might be nil here
+  }
+
+  # Ensure in exceptional cases only (for logging purposes for instance)
+  g.ensure(true){|ex|
+    # an exception occured, ex is never nil
+    env['rack.errors'].write("#{ex.message}\n")
   }
 end
 ```

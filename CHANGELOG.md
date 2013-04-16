@@ -1,16 +1,24 @@
 # 1.1.0 / 2013-04-11
 
 * Fixed catching of non standard errors (e.g. SecurityError)
-* Renamed `#on` as `#rescue` for better capturing semantics of `on` blocks (now an alias)
+
+* Renamed `#on` as `#rescue` for better capturing semantics of `on` blocks (now an alias).
+
+* Added a shortcut form for `#rescue` clauses allowing values directly, e.g.,
+
+        use Rack::Robustness do |g|
+          g.rescue(SecurityError, 403)
+        end
+
 * Added suppport for ensure clause(s), called after `rescue` blocks on every error
 
 * Rack's `env` is now available in all error handling blocks, e.g.,
 
         use Rack::Robustness do |g|
-          g.rescue{|ex| ... env ... }
-          g.ensure{|ex| ... env ... }
-          g.body  {|ex| ... env ... }
           g.status{|ex| ... env ... }
+          g.body  {|ex| ... env ... }
+          g.rescue(SecurityError){|ex| ... env ... }
+          g.ensure{|ex| ... env ... }
         end
 
 * Similarly, Rack::Robustness now internally uses instances of Rack::Request and Rack::Response,
@@ -19,8 +27,8 @@
 * Rack::Robustness may now be subclassed as an alternative to inline use shown above, e.g.
 
         class Shield < Rack::Robustness
-          self.rescue{|ex| ... }
           self.body  {|ex| ... }
+          self.rescue(SecurityError){|ex| ... }
           ...
         end
 

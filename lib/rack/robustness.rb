@@ -45,8 +45,8 @@ module Rack
         @catch_all = false
       end
 
-      def rescue(ex_class, &bl)
-        @rescue_clauses[ex_class] = bl || NIL_HANDLER
+      def rescue(ex_class, handler = nil, &bl)
+        @rescue_clauses[ex_class] = handler || bl || NIL_HANDLER
       end
       alias :on :rescue
 

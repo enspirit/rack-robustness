@@ -6,6 +6,7 @@ describe Rack::Robustness, 'rescue' do
     mock_app do |g|
       g.status 400
       g.rescue(ArgumentError){|ex| 'argument-error' }
+      g.rescue(SecurityError, 'security-error')
       g.on(TypeError)        {|ex| 'type-error'     }
     end
   }
@@ -14,6 +15,12 @@ describe Rack::Robustness, 'rescue' do
     get '/argument-error'
     last_response.status.should eq(400)
     last_response.body.should eq("argument-error")
+  end
+
+  it 'correctly support a non-block shortcut' do
+    get '/security-error'
+    last_response.status.should eq(400)
+    last_response.body.should eq("security-error")
   end
 
   it 'is has a `on` alias' do

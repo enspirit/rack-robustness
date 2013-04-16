@@ -1,4 +1,4 @@
-# 1.1.0 / 2013-04-11
+# 1.1.0 / 2013-04-16
 
 * Fixed catching of non standard errors (e.g. SecurityError)
 

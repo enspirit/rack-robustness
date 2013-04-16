@@ -28,7 +28,12 @@
         end
 
 * Similarly, Rack::Robustness now internally uses instances of Rack::Request and Rack::Response,
-  which are available under `request` and `response` in all blocks.
+  which are available under `request` and `response` in all blocks. The specific Response
+  object to use can be built using the `response` DSL method, e.g.,
+
+        use Rack::Robustness do |g|
+          g.response{|ex| MyOwnRackResponse.new }
+        end
 
 * Rack::Robustness may now be subclassed as an alternative to inline use shown above, e.g.
 

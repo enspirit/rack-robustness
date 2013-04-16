@@ -4,6 +4,10 @@ describe Rack::Robustness, 'the context in which blocks execute' do
 
   let(:app){
     mock_app do |g|
+      g.response{|ex|
+        raise "Invalid context" unless env && request
+        Rack::Response.new
+      }
       g.body{|ex|
         raise "Invalid context" unless env && request && response
         if response.status == 400

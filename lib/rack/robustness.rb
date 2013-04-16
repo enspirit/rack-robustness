@@ -19,19 +19,20 @@ module Rack
       end
 
       def reset
-        @rescue_clauses  = {}
-        @ensure_clauses  = []
-        @status_clause   = 500
-        @headers_clause  = {'Content-Type' => "text/plain"}
-        @body_clause     = ["Sorry, a fatal error occured."]
-        @catch_all       = true
+        @rescue_clauses   = {}
+        @ensure_clauses   = []
+        @status_clause    = 500
+        @headers_clause   = {'Content-Type' => "text/plain"}
+        @body_clause      = ["Sorry, a fatal error occured."]
+        @response_builder = lambda{|ex| ::Rack::Response.new }
+        @catch_all        = true
       end
       attr_reader :rescue_clauses, :ensure_clauses, :status_clause,
-                  :headers_clause, :body_clause, :catch_all
+                  :headers_clause, :body_clause, :catch_all, :response_builder
 
       def install
         yield self if block_given?
-        on(Object){|ex| 
+        on(Object){|ex|
           [status_clause, {}, body_clause]
         } if @catch_all
         @headers_clause.freeze
@@ -43,6 +44,10 @@ module Rack
 
       def no_catch_all
         @catch_all = false
+      end
+
+      def response(&bl)
+        @response_builder = bl
       end
 
       def rescue(ex_class, handler = nil, &bl)
@@ -96,20 +101,20 @@ module Rack
 
     def call!(env)
       @env, @request = env, Rack::Request.new(env)
-      handle_happy @app.call(env)
-      @response.finish
+      triple = @app.call(env)
+      handle_happy(triple)
     rescue Exception => ex
-      handle_rescue ex
-      @response.finish
+      handle_rescue(ex)
     ensure
-      handle_ensure ex
+      handle_ensure(ex)
     end
 
   private
 
     attr_reader :env, :request, :response
 
-    [ :rescue_clauses,
+    [ :response_builder,
+      :rescue_clauses,
       :ensure_clauses,
       :status_clause,
       :headers_clause,
@@ -123,18 +128,34 @@ module Rack
     def handle_happy(triple)
       s, h, b = triple
       @response = Response.new(b, s, h)
+      @response.finish
     end
 
     def handle_rescue(ex)
-      @response = Rack::Response.new
-      if rescue_clause = find_rescue_clause(ex.class)
-        handle_error(ex, rescue_clause)
-      else
-        raise(ex)
+      begin
+        # build a response instance
+        @response = instance_exec(ex, &response_builder)
+
+        # populate it if a rescue clause can be found
+        if rescue_clause = find_rescue_clause(ex.class)
+          handle_error(ex, rescue_clause)
+          return @response.finish
+        end
+
+        # no_catch_all mode, let reraise it later
+      rescue Exception => ex2
+        return catch_all ? last_resort(ex2) : raise(ex2)
       end
+
+      # we are in no_catch_all mode, reraise
+      raise(ex)
     end
 
     def handle_ensure(ex)
+      @response ||= begin
+        status, headers, body = last_resort(ex)
+        ::Rack::Response.new(body, status, headers)
+      end
       ensure_clauses.each{|(bypass,ensurer)|
         instance_exec(ex, &ensurer) if ex or not(bypass)
       }
@@ -150,8 +171,8 @@ module Rack
       else
         status, headers, body = rescue_clause
         handle_status(ex, status)
-        handle_headers(ex, headers_clause)
         handle_headers(ex, headers)
+        handle_headers(ex, headers_clause)
         handle_body(ex, body)
       end
     end

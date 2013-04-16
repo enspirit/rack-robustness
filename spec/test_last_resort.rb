@@ -74,4 +74,25 @@ describe Rack::Robustness, 'last resort' do
     end
   end
 
+  context 'when the response block fails and the ensure block uses the response object' do
+    let(:app){
+      mock_app do |g|
+        g.response{|ex| NoSuchResponseClass.new }
+        g.ensure{|ex| $seen_response = response }
+      end
+    }
+
+    before do
+      $seen_response = nil
+    end
+
+    it 'sets a default response object for the ensure clause' do
+      get '/argument-error'
+      last_response.status.should eq(500)
+      last_response.content_type.should eq("text/plain")
+      last_response.body.should eq("An internal error occured, sorry for the disagreement.")
+      $seen_response.should_not be_nil
+    end
+  end
+
 end

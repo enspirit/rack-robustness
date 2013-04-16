@@ -2,6 +2,8 @@
 
 * Fixed catching of non standard errors (e.g. SecurityError)
 
+* Global headers are now correctly overrided by specific per-exception headers
+
 * Renamed `#on` as `#rescue` for better capturing semantics of `on` blocks (now an alias).
 
 * Added a shortcut form for `#rescue` clauses allowing values directly, e.g.,

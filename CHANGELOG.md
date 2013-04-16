@@ -6,6 +6,10 @@
 
 * Renamed `#on` as `#rescue` for better capturing semantics of `on` blocks (now an alias).
 
+* Added last resort exception handling if an error occurs during exception handling itself.
+  In `no_catch_all` mode, the exception is simply reraised; otherwise a default 500 error
+  is returned with a safe message.
+
 * Added a shortcut form for `#rescue` clauses allowing values directly, e.g.,
 
         use Rack::Robustness do |g|

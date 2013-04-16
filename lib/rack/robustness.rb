@@ -88,6 +88,8 @@ module Rack
 
     def call(env)
       dup.call!(env)
+    rescue => ex
+       catch_all ? last_resort(ex) : raise(ex)
     end
 
   protected
@@ -176,6 +178,12 @@ module Rack
     def find_rescue_clause(ex_class)
       return nil if ex_class.nil?
       rescue_clauses.fetch(ex_class){ find_rescue_clause(ex_class.superclass) }
+    end
+
+    def last_resort(ex)
+      [ 500,
+        {'Content-Type' => 'text/plain'},
+        [ 'An internal error occured, sorry for the disagreement.' ] ]
     end
 
  end # class Robustness

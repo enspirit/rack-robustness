@@ -5,9 +5,9 @@ require 'rack/test'
 
 module SpecHelpers
 
-  def mock_app(&bl)
+  def mock_app(clazz = Rack::Robustness, &bl)
     Rack::Builder.new do
-      use Rack::Robustness, &bl
+      use clazz, &bl
       map '/happy' do
         run lambda{|env| [200, {'Content-Type' => 'text/plain'}, ['happy']]}
       end

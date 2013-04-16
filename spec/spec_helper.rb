@@ -17,6 +17,9 @@ module SpecHelpers
       map "/type-error" do
         run lambda{|env| raise TypeError, "a type error" }
       end
+      map "/security-error" do
+        run lambda{|env| raise SecurityError, "a security error" }
+      end
     end
   end
 

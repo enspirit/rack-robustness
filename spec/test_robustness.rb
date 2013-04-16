@@ -25,6 +25,13 @@ describe Rack::Robustness do
       last_response.content_type.should eq("text/plain")
       last_response.body.should eq("Sorry, a fatal error occured.")
     end
+
+    it 'catches all exceptions by default' do
+      get '/security-error'
+      last_response.status.should eq(500)
+      last_response.content_type.should eq("text/plain")
+      last_response.body.should eq("Sorry, a fatal error occured.")
+    end
   end
 
   context 'with a status, content_type and body constants' do

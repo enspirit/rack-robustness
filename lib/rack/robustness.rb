@@ -96,7 +96,7 @@ module Rack
       @env, @request = env, Rack::Request.new(env)
       handle_happy @app.call(env)
       @response.finish
-    rescue => ex
+    rescue Exception => ex
       handle_rescue ex
       @response.finish
     ensure

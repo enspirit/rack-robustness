@@ -11,6 +11,19 @@
           g.status{|ex| ... env ... }
         end
 
+* Similarly, Rack::Robustness now internally uses instances of Rack::Request and Rack::Response,
+  which are available under `request` and `response` in all blocks.
+* Rack::Robustness may now be subclassed as an alternative to inline use shown above, e.g.
+
+        class Shield < Rack::Robustness
+          self.rescue{|ex| ... }
+          self.body  {|ex| ... }
+          ...
+        end
+
+        # in Rack-based configuration
+        use Shield
+
 # 1.0.0 / 2013-02-26
 
 * Enhancements

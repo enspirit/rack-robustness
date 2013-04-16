@@ -32,7 +32,7 @@ module Rack
       def install
         yield self if block_given?
         on(Object){|ex| 
-          [cls.status_clause, {}, cls.body_clause]
+          [status_clause, {}, body_clause]
         } if @catch_all
         @headers_clause.freeze
         @body_clause.freeze
@@ -93,50 +93,89 @@ module Rack
   protected
 
     def call!(env)
-      @env = env
-      @app.call(env)
+      @env, @request = env, Rack::Request.new(env)
+      handle_happy @app.call(env)
+      @response.finish
     rescue => ex
-      raise unless handler = error_handler(ex.class)
-      handle_response(handler, ex)
+      handle_rescue ex
+      @response.finish
     ensure
-      cls.ensure_clauses.each{|(bypass,ensurer)|
-        instance_exec(ex, &ensurer) if ex or not(bypass)
-      }
+      handle_ensure ex
     end
 
   private
 
-    attr_reader :env
+    attr_reader :env, :request, :response
 
-    def cls
-      self.class
+    [ :rescue_clauses,
+      :ensure_clauses,
+      :status_clause,
+      :headers_clause,
+      :body_clause,
+      :catch_all ].each do |m|
+      define_method(m){|*args, &bl|
+        self.class.send(m, *args, &bl)
+      }
     end
 
-    def handle_response(response, ex)
-      case response
-      when NilClass then handle_response([cls.status_clause,  {},       cls.body_clause], ex)
-      when Fixnum   then handle_response([response,           {},       cls.body_clause], ex)
-      when String   then handle_response([cls.status_clause,  {},       response], ex)
-      when Hash     then handle_response([cls.status_clause,  response, cls.body_clause], ex)
-      when Proc     then handle_response(instance_exec(ex, &response), ex)
+    def handle_happy(triple)
+      s, h, b = triple
+      @response = Response.new(b, s, h)
+    end
+
+    def handle_rescue(ex)
+      @response = Rack::Response.new
+      if rescue_clause = find_rescue_clause(ex.class)
+        handle_error(ex, rescue_clause)
       else
-        s, h, b = response.map{|x| handle_value(x, ex) }
-        [ s, handle_value(cls.headers_clause, ex).merge(h), b ]
+        raise(ex)
       end
     end
 
-    def handle_value(value, ex)
-      case value
-      when Proc then instance_exec(ex, &value)
-      when Hash then value.each_with_object({}){|(k,v),h| h[k] = handle_value(v, ex) }
+    def handle_ensure(ex)
+      ensure_clauses.each{|(bypass,ensurer)|
+        instance_exec(ex, &ensurer) if ex or not(bypass)
+      }
+    end
+
+    def handle_error(ex, rescue_clause)
+      case rescue_clause
+      when NilClass then handle_error(ex, [status_clause,  {},           body_clause])
+      when Fixnum   then handle_error(ex, [rescue_clause,  {},           body_clause])
+      when String   then handle_error(ex, [status_clause,  {},           rescue_clause])
+      when Hash     then handle_error(ex, [status_clause, rescue_clause, body_clause])
+      when Proc     then handle_error(ex, handle_value(ex, rescue_clause))
       else
-        value
+        status, headers, body = rescue_clause
+        handle_status(ex, status)
+        handle_headers(ex, headers_clause)
+        handle_headers(ex, headers)
+        handle_body(ex, body)
       end
     end
 
-    def error_handler(ex_class)
+    def handle_status(ex, status)
+      @response.status = handle_value(ex, status)
+    end
+
+    def handle_headers(ex, headers)
+      handle_value(ex, headers).each_pair do |key,value|
+        @response[key] = handle_value(ex, value)
+      end
+    end
+
+    def handle_body(ex, body)
+      body = handle_value(ex, body)
+      @response.body = body.is_a?(String) ? [ body ] : body
+    end
+
+    def handle_value(ex, value)
+      value.is_a?(Proc) ? instance_exec(ex, &value) : value
+    end
+
+    def find_rescue_clause(ex_class)
       return nil if ex_class.nil?
-      cls.rescue_clauses.fetch(ex_class){ error_handler(ex_class.superclass) }
+      rescue_clauses.fetch(ex_class){ find_rescue_clause(ex_class.superclass) }
     end
 
  end # class Robustness

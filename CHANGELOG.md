@@ -16,7 +16,7 @@
           g.rescue(SecurityError, 403)
         end
 
-* Added suppport for ensure clause(s), called after `rescue` blocks on every error
+* Added suppport for ensure clause(s), always called after `rescue` blocks
 
 * Rack's `env` is now available in all error handling blocks, e.g.,
 
@@ -27,15 +27,15 @@
           g.ensure{|ex| ... env ... }
         end
 
-* Similarly, Rack::Robustness now internally uses instances of Rack::Request and Rack::Response,
-  which are available under `request` and `response` in all blocks. The specific Response
+* Similarly, Rack::Robustness now internally uses instances of Rack::Request and Rack::Response;
+  `request` and `response` are available in all blocks. The specific Response
   object to use can be built using the `response` DSL method, e.g.,
 
         use Rack::Robustness do |g|
           g.response{|ex| MyOwnRackResponse.new }
         end
 
-* Rack::Robustness may now be subclassed as an alternative to inline use shown above, e.g.
+* Rack::Robustness may now be subclassed as an alternative to inline `use`, e.g.
 
         class Shield < Rack::Robustness
           self.body  {|ex| ... }

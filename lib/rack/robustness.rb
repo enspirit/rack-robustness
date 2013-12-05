@@ -171,8 +171,8 @@ module Rack
       else
         status, headers, body = rescue_clause
         handle_status(ex, status)
-        handle_headers(ex, headers)
         handle_headers(ex, headers_clause)
+        handle_headers(ex, headers)
         handle_body(ex, body)
       end
     end
@@ -183,7 +183,7 @@ module Rack
 
     def handle_headers(ex, headers)
       handle_value(ex, headers).each_pair do |key,value|
-        @response[key] ||= handle_value(ex, value)
+        @response[key] = handle_value(ex, value)
       end
     end
 

@@ -183,7 +183,7 @@ module Rack
 
     def handle_headers(ex, headers)
       handle_value(ex, headers).each_pair do |key,value|
-        @response[key] ||= handle_value(ex, value)
+        @response[key] = handle_value(ex, value)
       end
     end
 

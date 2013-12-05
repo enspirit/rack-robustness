@@ -171,8 +171,8 @@ module Rack
       else
         status, headers, body = rescue_clause
         handle_status(ex, status)
-        handle_headers(ex, headers)
         handle_headers(ex, headers_clause)
+        handle_headers(ex, headers)
         handle_body(ex, body)
       end
     end

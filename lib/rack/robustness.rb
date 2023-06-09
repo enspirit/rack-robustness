@@ -1,7 +1,7 @@
 module Rack
   class Robustness
 
-    VERSION = "1.1.0".freeze
+    VERSION = "1.2.0".freeze
 
     def self.new(app, &bl)
       return super(app) if bl.nil? and not(Robustness==self)

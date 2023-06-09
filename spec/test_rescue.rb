@@ -13,20 +13,20 @@ describe Rack::Robustness, 'rescue' do
 
   it 'correctly rescues specified errors' do
     get '/argument-error'
-    last_response.status.should eq(400)
-    last_response.body.should eq("argument-error")
+    expect(last_response.status).to eq(400)
+    expect(last_response.body).to eq("argument-error")
   end
 
   it 'correctly support a non-block shortcut' do
     get '/security-error'
-    last_response.status.should eq(400)
-    last_response.body.should eq("security-error")
+    expect(last_response.status).to eq(400)
+    expect(last_response.body).to eq("security-error")
   end
 
   it 'is has a `on` alias' do
     get '/type-error'
-    last_response.status.should eq(400)
-    last_response.body.should eq("type-error")
+    expect(last_response.status).to eq(400)
+    expect(last_response.body).to eq("type-error")
   end
 
 end

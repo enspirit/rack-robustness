@@ -25,7 +25,7 @@ describe Rack::Robustness, 'last resort' do
       lambda{
         get '/argument-error'
       }.should raise_error(NameError, /NoSuchResponseClass/)
-      $seen_ex.should be_a(ArgumentError)
+      expect($seen_ex).to be_a(ArgumentError)
     end
   end
 
@@ -38,9 +38,9 @@ describe Rack::Robustness, 'last resort' do
 
     it 'falls back to last resort response' do
       get '/argument-error'
-      last_response.status.should eq(500)
-      last_response.content_type.should eq("text/plain")
-      last_response.body.should eq("An internal error occured, sorry for the disagreement.")
+      expect(last_response.status).to eq(500)
+      expect(last_response.content_type).to eq("text/plain")
+      expect(last_response.body).to eq("An internal error occured, sorry for the disagreement.")
     end
   end
 
@@ -68,9 +68,9 @@ describe Rack::Robustness, 'last resort' do
 
     it 'reraises the internal error' do
       get '/argument-error'
-      last_response.status.should eq(500)
-      last_response.content_type.should eq("text/plain")
-      last_response.body.should eq("An internal error occured, sorry for the disagreement.")
+      expect(last_response.status).to eq(500)
+      expect(last_response.content_type).to eq("text/plain")
+      expect(last_response.body).to eq("An internal error occured, sorry for the disagreement.")
     end
   end
 
@@ -88,10 +88,10 @@ describe Rack::Robustness, 'last resort' do
 
     it 'sets a default response object for the ensure clause' do
       get '/argument-error'
-      last_response.status.should eq(500)
-      last_response.content_type.should eq("text/plain")
-      last_response.body.should eq("An internal error occured, sorry for the disagreement.")
-      $seen_response.should_not be_nil
+      expect(last_response.status).to eq(500)
+      expect(last_response.content_type).to eq("text/plain")
+      expect(last_response.body).to eq("An internal error occured, sorry for the disagreement.")
+      expect($seen_response).to_not be_nil
     end
   end
 

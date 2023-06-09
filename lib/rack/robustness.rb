@@ -164,7 +164,7 @@ module Rack
     def handle_error(ex, rescue_clause)
       case rescue_clause
       when NilClass then handle_error(ex, [status_clause,  {},           body_clause])
-      when Fixnum   then handle_error(ex, [rescue_clause,  {},           body_clause])
+      when Integer  then handle_error(ex, [rescue_clause,  {},           body_clause])
       when String   then handle_error(ex, [status_clause,  {},           rescue_clause])
       when Hash     then handle_error(ex, [status_clause, rescue_clause, body_clause])
       when Proc     then handle_error(ex, handle_value(ex, rescue_clause))

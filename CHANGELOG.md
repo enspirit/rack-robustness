@@ -1,4 +1,10 @@
-# 1.1.0 / 2013-04-16
+## 1.2.0
+
+* Modernize with test matrix on ruby 2.7, 3.1, and 3.2
+
+* Fix usage of Fixnum to be compatible with Ruby 3.x
+
+## 1.1.0 / 2013-04-16
 
 * Fixed catching of non standard errors (e.g. SecurityError)
 
@@ -46,7 +52,7 @@
         # in Rack-based configuration
         use Shield
 
-# 1.0.0 / 2013-02-26
+## 1.0.0 / 2013-02-26
 
 * Enhancements
 

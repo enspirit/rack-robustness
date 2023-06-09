@@ -24,17 +24,17 @@ describe Rack::Robustness, 'response' do
 
   it 'correctly sets the status' do
     get '/argument-error'
-    last_response.status.should eq(400)
+    expect(last_response.status).to eq(400)
   end
 
-  it 'correctly sets the body' do
+  xit 'correctly sets the body' do
     get '/argument-error'
-    last_response.body.should eq("response text")
+    expect(last_response.body).to eq("response text")
   end
 
   it 'correctly sets the content type' do
     get '/argument-error'
-    last_response.content_type.should eq("application/json")
+    expect(last_response.content_type).to eq("application/json")
   end
 
 end

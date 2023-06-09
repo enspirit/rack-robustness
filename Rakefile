@@ -1,6 +1,3 @@
-# We run tests by default
-task :default => :test
-
 #
 # Install all tasks found in tasks folder
 #
@@ -9,3 +6,4 @@ task :default => :test
 Dir["tasks/*.rake"].each do |taskfile|
   load taskfile
 end
+task :default => :test

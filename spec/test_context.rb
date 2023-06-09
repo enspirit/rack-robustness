@@ -33,13 +33,13 @@ describe Rack::Robustness, 'the context in which blocks execute' do
 
   it 'should let `env`, `request` and `response` be available in all blocks' do
     get '/argument-error'
-    last_response.status.should eq(400)
-    last_response.body.should eq('argument-error')
+    expect(last_response.status).to eq(400)
+    expect(last_response.body).to eq('argument-error')
   end
 
   it 'executes the ensure block as well' do
     get '/argument-error'
-    $seen_ex.should be_a(ArgumentError)
+    expect($seen_ex).to be_a(ArgumentError)
   end
 
 end

@@ -13,8 +13,8 @@ describe "Rack::Robustness subclasses" do
 
   it 'works as expected' do
     get '/argument-error'
-    last_response.status.should eq(400)
-    last_response.body.should eq("an argument error")
+    expect(last_response.status).to eq(400)
+    expect(last_response.body).to eq("an argument error")
   end
 
 end

@@ -18,20 +18,20 @@ describe Rack::Robustness, 'ensure' do
 
   it 'should be called in all cases when an error occurs' do
     get '/argument-error'
-    last_response.status.should eq(400)
-    last_response.body.should eq("error")
-    $seen_true.should eq([ArgumentError])
-    $seen_false.should eq([ArgumentError])
-    $seen_none.should eq([ArgumentError])
+    expect(last_response.status).to eq(400)
+    expect(last_response.body).to eq("error")
+    expect($seen_true).to eq([ArgumentError])
+    expect($seen_false).to eq([ArgumentError])
+    expect($seen_none).to eq([ArgumentError])
   end
 
   it 'should not be called when explicit bypass on happy paths' do
     get '/happy'
-    last_response.status.should eq(200)
-    last_response.body.should eq("happy")
-    $seen_true.should be_nil
-    $seen_false.should eq([NilClass])
-    $seen_none.should eq([NilClass])
+    expect(last_response.status).to eq(200)
+    expect(last_response.body).to eq("happy")
+    expect($seen_true).to be_nil
+    expect($seen_false).to eq([NilClass])
+    expect($seen_none).to eq([NilClass])
   end
 
 end

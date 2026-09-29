@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rack-robustness (1.2.0)
+    rack-robustness (2.0.0)
       rack (>= 3.0, < 4.0)
 
 GEM

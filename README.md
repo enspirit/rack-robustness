@@ -18,9 +18,9 @@ class Robustness
   def call(env)
     @app.call(env)
   rescue ArgumentError => ex
-    [400, { 'Content-Type' => 'text/plain' }, [ ex.message ] ]  # suppose the message can be safely used
+    [400, { 'content-type' => 'text/plain' }, [ ex.message ] ]  # suppose the message can be safely used
   rescue SecurityError => ex
-    [403, { 'Content-Type' => 'text/plain' }, [ ex.message ] ]
+    [403, { 'content-type' => 'text/plain' }, [ ex.message ] ]
   ensure
     env['rack.errors'].write(ex.message) if ex
   end
@@ -50,6 +50,11 @@ end
 ## Requirements
 
 Ruby >= 3.2 and Rack 3. Use the 1.x line if you are still on Rack 2.
+
+Response header names are always emitted in lowercase, as the Rack 3 SPEC
+requires. You may write them in any case you like -- `'content-type'`,
+`'Content-Type'` and `'CONTENT-TYPE'` all name the same header -- they are
+normalized before reaching the response.
 
 ## Links
 
@@ -181,7 +186,7 @@ end
 #
 # Respond with
 #   status:  500,
-#   headers: {'Content-Type' => 'text/plain'}
+#   headers: {'content-type' => 'text/plain'}
 #   body:    [ "Sorry, an error occured." ]
 #
 use Rack::Robustness
@@ -197,7 +202,7 @@ use Rack::Robustness
 #
 use Rack::Robustness do |g|
   g.status 400
-  g.headers 'Content-Type' => 'text/html'
+  g.headers 'content-type' => 'text/html'
   g.content_type 'text/html'               # shortcut over headers
   g.body "<p>an error occured</p>"
 end
@@ -215,10 +220,10 @@ use Rack::Robustness do |g|
   g.status{|ex| ArgumentError===ex ? 400 : 500 }
 
   # global dynamic headers
-  g.headers{|ex| {'Content-Type' => 'text/plain', ...} }
+  g.headers{|ex| {'content-type' => 'text/plain', ...} }
 
   # local dynamic and/or static headers
-  g.headers 'Content-Type' => lambda{|ex| ... },
+  g.headers 'content-type' => lambda{|ex| ... },
             'Foo' => 'Bar'
 
   # dynamic content type

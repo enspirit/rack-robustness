@@ -4,6 +4,17 @@ require 'rack/robustness/version'
 module Rack
   class Robustness
 
+    # Downcases header names, as required by the Rack 3 SPEC: "Header keys
+    # must not contain uppercase ASCII characters (A-Z)".
+    #
+    # Header names are case-insensitive on the wire, so this is applied to
+    # whatever the DSL is given, rather than rejecting capitalized names.
+    def self.normalize_headers(headers)
+      headers.each_with_object({}) do |(name, value), normalized|
+        normalized[name.to_s.downcase] = value
+      end
+    end
+
     def self.new(app, &bl)
       return super(app) if bl.nil? and not(Robustness==self)
       Class.new(self).install(&bl).new(app)
@@ -23,7 +34,7 @@ module Rack
         @rescue_clauses   = {}
         @ensure_clauses   = []
         @status_clause    = 500
-        @headers_clause   = {'Content-Type' => "text/plain"}
+        @headers_clause   = {'content-type' => "text/plain"}
         @body_clause      = ["Sorry, a fatal error occured."]
         @response_builder = lambda{|ex| ::Rack::Response.new }
         @catch_all        = true
@@ -68,12 +79,12 @@ module Rack
         if h.nil?
           @headers_clause = bl
         else
-          @headers_clause.merge!(h)
+          @headers_clause.merge!(Robustness.normalize_headers(h))
         end
       end
 
       def content_type(ct=nil, &bl)
-        headers('Content-Type' => ct || bl)
+        headers('content-type' => ct || bl)
       end
 
       def body(b=nil, &bl)
@@ -182,8 +193,12 @@ module Rack
       @response.status = handle_value(ex, status)
     end
 
+    # `headers` may come from a block, and therefore carry names in any case.
+    # They are normalized here so that a name given as 'Content-Type' and one
+    # given as 'content-type' are the same header.
     def handle_headers(ex, headers)
-      handle_value(ex, headers).each_pair do |key,value|
+      normalized = Robustness.normalize_headers(handle_value(ex, headers))
+      normalized.each_pair do |key,value|
         @response[key] ||= handle_value(ex, value)
       end
     end
@@ -204,7 +219,7 @@ module Rack
 
     def last_resort(ex)
       [ 500,
-        {'Content-Type' => 'text/plain'},
+        {'content-type' => 'text/plain'},
         [ 'An internal error occured, sorry for the disagreement.' ] ]
     end
 

@@ -2,8 +2,7 @@
 
 Rack::Robustness is the rescue clause of your Rack's call stack. In other words, a middleware that ensures the robustness of your web stack, because exceptions occur either intentionally or unintentionally. Rack::Robustness is the rack middleware you would have written manually (see below) but provides a DSL for scaling from zero configuration (a default shield) to specific rescue clauses for specific errors.
 
-[![Build Status](https://secure.travis-ci.org/blambeau/rack-robustness.png)](http://travis-ci.org/blambeau/rack-robustness)
-[![Dependency Status](https://gemnasium.com/blambeau/rack-robustness.png)](https://gemnasium.com/blambeau/rack-robustness)
+[![Integration](https://github.com/blambeau/rack-robustness/actions/workflows/integration.yml/badge.svg)](https://github.com/blambeau/rack-robustness/actions/workflows/integration.yml)
 
 ```ruby
 ##
@@ -47,6 +46,10 @@ use Rack::Robustness do |g|
   }
 end
 ```
+
+## Requirements
+
+Ruby >= 3.2 and Rack 3. Use the 1.x line if you are still on Rack 2.
 
 ## Links
 

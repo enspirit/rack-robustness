@@ -21,11 +21,11 @@ jobs:
           status: starting
           channel: '#opensource-cicd'
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: 3.4
           bundler-cache: true
 
       - run: make package

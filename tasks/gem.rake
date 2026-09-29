@@ -2,7 +2,7 @@ require 'rubygems/package_task'
 
 # Dynamically load the gem spec
 gemspec_file = File.expand_path('../../rack-robustness.gemspec', __FILE__)
-gemspec      = Kernel.eval(File.read(gemspec_file))
+gemspec      = Kernel.eval(File.read(gemspec_file), binding, gemspec_file)
 
 Gem::PackageTask.new(gemspec) do |t|
 

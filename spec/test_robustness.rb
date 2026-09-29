@@ -65,7 +65,7 @@ describe Rack::Robustness do
 
     it 'set the specified headers on error' do
       get '/argument-error'
-      last_response.headers['Foo'].should eq('Bar')
+      expect(last_response.headers['Foo']).to eq('Bar')
       expect(last_response.content_type).to eq("text/test")
     end
   end
@@ -130,13 +130,13 @@ describe Rack::Robustness do
 
     it 'correctly sets the specified headers on an ArgumentError' do
       get '/argument-error'
-      last_response.headers['Foo'].should eq('Bar')
+      expect(last_response.headers['Foo']).to eq('Bar')
       expect(last_response.content_type).to eq("text/arg")
     end
 
     it 'correctly sets the specified headers on a TypeError' do
       get '/type-error'
-      last_response.headers['Foo'].should eq('Bar')
+      expect(last_response.headers['Foo']).to eq('Bar')
       expect(last_response.content_type).to eq("text/other")
     end
   end
@@ -152,7 +152,7 @@ describe Rack::Robustness do
 
     after do
       # if merges the default headers in any way
-      last_response.headers['Foo'].should eq('Bar')
+      expect(last_response.headers['Foo']).to eq('Bar')
     end
 
     it 'uses the response on ArgumentError' do
@@ -214,9 +214,9 @@ describe Rack::Robustness do
     end
 
     it 'raises on unknown error' do
-      lambda{
+      expect{
         get '/type-error'
-      }.should raise_error(TypeError)
+      }.to raise_error(TypeError)
     end
   end
 
@@ -236,9 +236,9 @@ describe Rack::Robustness do
     end
 
     it 'raises on unknown error' do
-      lambda{
+      expect{
         get '/type-error'
-      }.should raise_error(TypeError)
+      }.to raise_error(TypeError)
     end
   end
 

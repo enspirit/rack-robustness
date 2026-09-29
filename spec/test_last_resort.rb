@@ -16,15 +16,15 @@ describe Rack::Robustness, 'last resort' do
     }
 
     it 'reraises the internal error' do
-      lambda{
+      expect{
         get '/argument-error'
-      }.should raise_error(NameError, /NoSuchResponseClass/)
+      }.to raise_error(NameError, /NoSuchResponseClass/)
     end
 
     it 'passes into the ensure block with the original error' do
-      lambda{
+      expect{
         get '/argument-error'
-      }.should raise_error(NameError, /NoSuchResponseClass/)
+      }.to raise_error(NameError, /NoSuchResponseClass/)
       expect($seen_ex).to be_a(ArgumentError)
     end
   end
@@ -53,9 +53,9 @@ describe Rack::Robustness, 'last resort' do
     }
 
     it 'reraises the internal error' do
-      lambda{
+      expect{
         get '/argument-error'
-      }.should raise_error(NameError, /NoSuchResponseClass/)
+      }.to raise_error(NameError, /NoSuchResponseClass/)
     end
   end
 
